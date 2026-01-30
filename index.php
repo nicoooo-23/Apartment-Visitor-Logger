@@ -1,40 +1,6 @@
 <?php
-// connect mysql
-$databaseHost = 'localhost';
-$databaseUsername = 'root';
-$databasePassword = '';
-$databaseName = 'apartment_db';
-
-// connection
-$connection = mysqli_connect($databaseHost, $databaseUsername, $databasePassword);
-
-// check connection
-if (!$connection) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-
-// create database (use if not exists to avoid error if it already exists)
-if (!$connection) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-// query to create database (I think you're supposed to pass the connection then the query)
-mysqli_query($connection, "CREATE DATABASE IF NOT EXISTS $databaseName");
-// query to select database (same thing here)
-mysqli_select_db($connection, $databaseName);
-
-// create table
-$visitorTableQuery = "CREATE TABLE IF NOT EXISTS visitors (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    phone VARCHAR(20),
-    apartment VARCHAR(50),
-    reason_for_visit VARCHAR(255),
-    time_in TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    time_out TIMESTAMP NULL,
-    status ENUM('checked_in', 'checked_out') DEFAULT 'checked_in'
-)";
-// execute query to create table
-mysqli_query($connection, $visitorTableQuery);
+// include database connection
+require_once 'db.php';
 
 // form submission handling
 if ($_SERVER["REQUEST_METHOD"] === 'POST') {
