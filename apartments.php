@@ -204,7 +204,123 @@ if ($result) {
             
             <?php if (isset($error_message)): ?>
                 <div class="message error"><?php echo $error_message; ?></div>
-            <?php endif; ?> 
+            <?php endif; ?>
+            <!-- Add/Edit Apartment Form -->
+            <h2>Add New Apartment</h2>
+            <div class="edit-form">
+                <form method="POST">
+                    <input type="hidden" name="action" value="add">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="apartment_number">Apartment Number:</label>
+                            <input 
+                                type="text" 
+                                id="apartment_number" 
+                                name="apartment_number" 
+                                placeholder="e.g., 101" 
+                                required
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status:</label>
+                            <select id="status" name="status" required>
+                                <option value="available">Available</option>
+                                <option value="occupied">Occupied</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="owner_name">Owner Name (Optional):</label>
+                            <input 
+                                type="text" 
+                                id="owner_name" 
+                                name="owner_name" 
+                                placeholder="e.g., John Doe"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="owner_phone">Owner Phone (Optional):</label>
+                            <input 
+                                type="tel" 
+                                id="owner_phone" 
+                                name="owner_phone" 
+                                placeholder="e.g., 555-1234"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="owner_email">Owner Email (Optional):</label>
+                        <input 
+                            type="email" 
+                            id="owner_email" 
+                            name="owner_email" 
+                            placeholder="e.g., john@example.com"
+                        >
+                    </div>
+                    
+                    <button type="submit">Add Apartment</button>
+                </form>
+            </div>
+            
+            <!-- Apartments List -->
+            <h2>Apartment List (<?php echo count($apartments); ?> total)</h2>
+            
+            <?php if (count($apartments) > 0): ?>
+                <div class="apartments-grid">
+                    <?php foreach ($apartments as $apt): ?>
+                        <div class="apartment-card">
+                            <div class="apt-number">Apt <?php echo htmlspecialchars($apt['apartment_number']); ?></div>
+                            <span class="apt-status <?php echo $apt['status'] === 'available' ? 'status-available' : 'status-occupied'; ?>">
+                                <?php echo strtoupper($apt['status']); ?>
+                            </span>
+                            
+                            <?php if (!empty($apt['owner_name'])): ?>
+                                <div class="apt-detail">
+                                    <strong>Owner:</strong> <?php echo htmlspecialchars($apt['owner_name']); ?>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($apt['owner_phone'])): ?>
+                                <div class="apt-detail">
+                                    <strong>Phone:</strong> <?php echo htmlspecialchars($apt['owner_phone']); ?>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($apt['owner_email'])): ?>
+                                <div class="apt-detail">
+                                    <strong>Email:</strong> <?php echo htmlspecialchars($apt['owner_email']); ?>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <div class="apt-detail" style="color: #999; font-size: 12px; margin-top: 10px;">
+                                Updated: <?php echo htmlspecialchars($apt['updated_at']); ?>
+                            </div>
+                            
+                            <div class="apt-actions">
+                                <form method="POST" style="flex: 1;">
+                                    <input type="hidden" name="action" value="update">
+                                    <input type="hidden" name="apartment_id" value="<?php echo $apt['id']; ?>">
+                                    <input type="hidden" name="status" value="<?php echo $apt['status'] === 'available' ? 'occupied' : 'available'; ?>">
+                                    <input type="hidden" name="owner_name" value="<?php echo htmlspecialchars($apt['owner_name']); ?>">
+                                    <input type="hidden" name="owner_phone" value="<?php echo htmlspecialchars($apt['owner_phone']); ?>">
+                                    <input type="hidden" name="owner_email" value="<?php echo htmlspecialchars($apt['owner_email']); ?>">
+                                    <button type="submit" class="btn-edit">
+                                        Toggle: <?php echo $apt['status'] === 'available' ? 'Occupy' : 'Release'; ?>
+                                    </button>
+                                </form>
+                                <a href="?delete=<?php echo $apt['id']; ?>" onclick="return confirm('Delete this apartment?');" class="btn-delete" style="display: flex; align-items: center; justify-content: center; text-decoration: none; color: white;">Delete</a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p style="text-align: center; color: #999; padding: 40px;">No apartments added yet. Create one above!</p>
+            <?php endif; ?>
+            </div> 
         </div>
     <?php endif; ?>
 </body>
