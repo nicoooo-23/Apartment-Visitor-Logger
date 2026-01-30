@@ -1,53 +1,60 @@
 <?php
-// include database connection
-require_once 'db.php';
+// Apartment Visitor Logger
+require_once 'db.php'; // include database connection
 
-// form submission handling
-if ($_SERVER["REQUEST_METHOD"] === 'POST') {
-    if (isset($_POST['action']) && $_POST['action'] === 'check_out' && isset($_POST['visitor_id'])) {
-        // for checking out
-        $visitorId = intval($_POST['visitor_id']);
-        // query to update status in table
-        $checkOutQuery = "UPDATE visitors SET time_out = NOW(), status = 'checked_out' WHERE id = $visitorId";
-        // exec query
-        mysqli_query($connection, $checkOutQuery);
-    } elseif (isset($_POST['visitor_name'])) {
-        // log new
-        $name = mysqli_real_escape_string($connection, $_POST['visitor_name']);
-        $phone = mysqli_real_escape_string($connection, $_POST['visitor_phone']);
-        $apartment = mysqli_real_escape_string($connection, $_POST['visitor_apartment']);
-        $reason = mysqli_real_escape_string($connection, $_POST['reason_for_visit']);
+// get apartments for dropdown
+$apartments = [];
+$apartment_query = "SELECT apartment_number FROM apartments ORDER BY apartment_number ASC"; //select all apts logged in db
+$result = $conn->query($apartment_query);
 
-        if (!empty($name) && !empty($apartment)) {
-            // query to insert new visitor
-            $insertQuery = "INSERT INTO visitors (name, phone, apartment, reason_for_visit) VALUES ('$name', '$phone', '$apartment', '$reason')";
-            // exec query
-            mysqli_query($connection, $insertQuery);
-
-            if(mysqli_affected_rows($connection) > 0){
-                // success
-                echo "<script>alert('Visitor logged successfully.');</script>";
-            } else {
-                // failure
-                echo "<script>alert('Error logging visitor. Please try again.');</script>";
-            }
-        } else {
-            echo "<script>alert('Name and Apartment are required fields.');</script>";
-        }
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $apartments[] = $row['apartment_number']; // add to array
     }
 }
 
+// handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // get form inputs
+    $visitor_name = trim($_POST['visitor_name']);
+    $contact = trim($_POST['contact']);
+    $purpose = trim($_POST['purpose']);
+    $apartment_number = trim($_POST['apartment_number']);
+
+    // basic validation
+    if (!empty($visitor_name) && !empty($apartment_number)) {
+
+        // escape inputs
+        // prevent SQL injection
+        // might destroy your database
+        // most common web hacking techniques
+        $visitor_name = $conn->real_escape_string($visitor_name);
+        $contact = $conn->real_escape_string($contact);
+        $purpose = $conn->real_escape_string($purpose);
+        $apartment_number = $conn->real_escape_string($apartment_number);
+
+        // insert visitor log
+        $insert_sql = "INSERT INTO visitors (visitor_name, contact, purpose, apartment_number)
+                       VALUES ('$visitor_name', '$contact', '$purpose', '$apartment_number')";
+
+        if ($conn->query($insert_sql) === TRUE) {
+            $success_message = "✓ Visitor logged successfully!";
+        } else {
+            $error_message = "Error: " . $conn->error;
+        }
+
+    } else {
+        $error_message = "Error: Visitor name and apartment number are required!";
+    }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apartment Visitor Logger</title>
-    <style>
-
-    </style>
 </head>
 <body>
     <!-- navigation bar -->
@@ -63,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
         <!-- header -->
         <div class="container">
             <h1>Visitor Logger</h1>
-            <div class="status">Total Visitors: <span id="count"><?php echo mysqli_num_rows(mysqli_query($connection, "SELECT * FROM visitors WHERE status = 'checked_in'")); ?></span></div>
+            <div class="status">Total Visitors: <span><?php echo mysqli_num_rows($conn->query("SELECT * FROM visitors WHERE status = 'checked_in'")) ?></span></div>
         </div>
 
         <!-- form area -->
@@ -114,5 +121,6 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
             <button type="submit">Log Visitor</button>
         </form>
     </div>
+
 </body>
 </html>
