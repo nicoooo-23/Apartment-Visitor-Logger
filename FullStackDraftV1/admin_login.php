@@ -1,6 +1,8 @@
 <?php
 // start session for admin login
 session_start();
+require_once 'header.php';
+// redirect to admin dashboard if already logged in
 ?>
 
 <!DOCTYPE html>

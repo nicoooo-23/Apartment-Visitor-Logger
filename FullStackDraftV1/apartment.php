@@ -1,5 +1,7 @@
 <?php
 require_once 'db.php';
+require_once 'header.php';
+session_start();
 
 // handle apartment insert
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
