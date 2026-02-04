@@ -55,4 +55,28 @@ $conn->query("
         checkout_time TIMESTAMP NULL
     )
 ");
+
+// ==============================
+// AUTO-CREATE DEFAULT ADMIN USER
+// ==============================
+
+// default admin credentials
+$default_username = "admin";
+$default_password = "admin123"; // change if you want
+
+// check if any admin already exists
+$checkAdmin = $conn->query("SELECT id FROM admin_users LIMIT 1");
+
+if ($checkAdmin->num_rows === 0) {
+
+    // hash the default password
+    $hashedPassword = password_hash($default_password, PASSWORD_DEFAULT);
+
+    // insert default admin account
+    $conn->query("
+        INSERT INTO admin_users (username, password)
+        VALUES ('$default_username', '$hashedPassword')
+    ");
+}
+
 ?>
