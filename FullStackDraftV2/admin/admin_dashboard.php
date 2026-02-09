@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once '../includes/db.php';
-require_once '../includes/admin_header.php';
+require_once '../admin_includes/admin_header.php';
 
 // ==============================
 // PROTECT ADMIN PAGE
