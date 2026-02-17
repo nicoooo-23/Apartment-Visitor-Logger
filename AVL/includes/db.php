@@ -39,21 +39,25 @@ $conn->query("
     )
 ");
 
-// ==============================
+// ================================
 // CREATE VISITORS TABLE
-// ==============================
+// ================================
 $conn->query("
     CREATE TABLE IF NOT EXISTS visitors (
         id INT AUTO_INCREMENT PRIMARY KEY,
         visitor_name VARCHAR(255) NOT NULL,
-        contact VARCHAR(50),
+        contact VARCHAR(100),
         purpose TEXT,
-        apartment_number VARCHAR(50),
+
+        apartment_id INT NOT NULL,
 
         status ENUM('checked_in', 'checked_out') DEFAULT 'checked_in',
-
         visit_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        checkout_time TIMESTAMP NULL
+        checkout_time TIMESTAMP NULL,
+
+        FOREIGN KEY (apartment_id) 
+            REFERENCES apartments(id)
+            ON DELETE RESTRICT
     )
 ");
 
