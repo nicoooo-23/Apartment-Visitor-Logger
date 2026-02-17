@@ -1,8 +1,6 @@
 <?php
 session_start();
 require_once '../includes/db.php';
-require_once 'admin_includes/admin_header.php';
-
 // ==============================
 // PROTECT ADMIN PAGE
 // ==============================
@@ -10,7 +8,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
     header("Location: admin_login.php");
     exit;
 }
-
+require_once 'admin_includes/admin_header.php';
 // ==============================
 // SUMMARY QUERIES
 // ==============================

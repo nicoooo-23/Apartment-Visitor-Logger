@@ -1,13 +1,12 @@
 <?php
 // start session for admin login
 session_start();
-require_once 'admin_includes/admin_header.php';
-
 // redirect to admin dashboard if already logged in
 if (isset($_SESSION['admin_logged_in'])) {
     header("Location: admin_dashboard.php");
     exit;
 }
+require_once 'admin_includes/admin_header.php';
 ?>
 
 <!DOCTYPE html>
