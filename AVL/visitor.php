@@ -20,7 +20,7 @@ require_once 'includes/header.php';
         <input type="text" name="visitor_name" required><br><br>
 
         Contact:
-        <input type="text" name="phone"><br><br>
+        <input type="text" name="phone" required><br><br>
 
         Apartment:
         <select name="apt" required>
@@ -40,7 +40,7 @@ require_once 'includes/header.php';
         </select><br><br>
 
         Purpose:
-        <textarea name="purpose"></textarea><br><br>
+        <textarea name="purpose" required></textarea><br><br>
 
         <button type="submit">Check In</button>
     </form>
