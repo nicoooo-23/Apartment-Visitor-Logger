@@ -20,7 +20,7 @@ if (isset($_POST['check_in'])) {
 
         $conn->query("
             INSERT INTO visitors
-            (visitor_name, contact, purpose, apartment_number, status)
+            (visitor_name, contact, purpose, apartment_id, status)
             VALUES
             ('$name', '$phone', '$purpose', '$apt', 'checked_in')
         ");
@@ -35,15 +35,20 @@ if (isset($_POST['check_in'])) {
 // ==============================
 if (isset($_POST['check_out'])) {
 
-    // check out the most recent checked-in visitor
-    $conn->query("
-        UPDATE visitors
-        SET status = 'checked_out',
-            checkout_time = NOW()
-        WHERE status = 'checked_in'
-        ORDER BY visit_time DESC
-        LIMIT 1
-    ");
+    if (!empty($_POST['checkout_visitor'])) {
+
+        $visitor_id = (int) $_POST['checkout_visitor'];
+
+        $stmt = $conn->prepare("
+            UPDATE visitors
+            SET status = 'checked_out',
+                checkout_time = NOW()
+            WHERE id = ? AND status = 'checked_in'
+        ");
+
+        $stmt->bind_param("i", $visitor_id);
+        $stmt->execute();
+    }
 
     header("Location: visitor.php");
     exit;
