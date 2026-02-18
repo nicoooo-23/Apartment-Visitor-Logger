@@ -54,18 +54,17 @@ require_once 'includes/header.php';
         <select name="checkout_visitor" id="checkout_visitor" required>
             <option value="">Select Visitor</option>
             <?php
-            $checked_in_visitors = $conn->query("SELECT id, visitor_name, apartment_number FROM visitors WHERE status = 'checked_in'");
+            $checked_in_visitors = $conn->query("SELECT id, visitor_name, apartment_id FROM visitors WHERE status = 'checked_in'");
             while ($v = $checked_in_visitors->fetch_assoc()):
             ?>
                 <option value="<?php echo $v['id']; ?>">
-                    <?php echo htmlspecialchars($v['visitor_name'] . ' (Apt: ' . $v['apartment_number'] . ')'); ?>
+                    <?php echo htmlspecialchars($v['visitor_name'] . ' (Apt: ' . $v['apartment_id'] . ')'); ?>
                 </option>
             <?php endwhile; ?>
         </select>
         <button type="submit" name="check_out">Check Out</button>
     </form>
 
-    <hr>
 
     <h2>Currently Inside</h2>
 
@@ -77,15 +76,19 @@ require_once 'includes/header.php';
     </tr>
 
     <?php
-    $inside = $conn->query(
-        "SELECT * FROM visitors WHERE status = 'checked_in'"
-    );
+    $inside = $conn->query("
+        SELECT v.*, a.apartment_number
+        FROM visitors v
+        JOIN apartments a ON v.apartment_id = a.id
+        WHERE v.status = 'checked_in'
+        ");
+
 
     while ($v = $inside->fetch_assoc()):
     ?>
     <tr>
         <td><?php echo htmlspecialchars($v['visitor_name']); ?></td>
-        <td><?php echo $v['apartment_number']; ?></td>
+        <td><?php echo htmlspecialchars($v['apartment_number']); ?></td>
         <td><?php echo $v['visit_time']; ?></td>
     </tr>
     <?php endwhile; ?>
