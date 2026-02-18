@@ -28,12 +28,12 @@ require_once 'includes/header.php';
             <?php
             // only occupied apartments should receive visitors
             $apts = $conn->query(
-                "SELECT apartment_number FROM apartments WHERE status = 'occupied'"
+                "SELECT id, apartment_number FROM apartments WHERE status = 'occupied'"
             );
 
             while ($a = $apts->fetch_assoc()):
             ?>
-                <option value="<?php echo $a['apartment_number']; ?>">
+                <option value="<?php echo $a['id']; ?>">
                     <?php echo $a['apartment_number']; ?>
                 </option>
             <?php endwhile; ?>
