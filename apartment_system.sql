@@ -27,7 +27,7 @@ SET time_zone = "+00:00";
 -- Table structure for table `admin_users`
 --
 
-CREATE TABLE `admin_users` (
+CREATE TABLE IF NOT EXISTS `admin_users` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL
@@ -37,7 +37,7 @@ CREATE TABLE `admin_users` (
 -- Dumping data for table `admin_users`
 --
 
-INSERT INTO `admin_users` (`id`, `username`, `password`) VALUES
+INSERT IGNORE INTO `admin_users` (`id`, `username`, `password`) VALUES
 (1, 'admin', '$2y$10$hqKlYskY8XtlgZ1oLhIdN.wdKi5tH/X0QShsG3VveF3Y96TZfZjnO');
 
 -- --------------------------------------------------------
@@ -46,7 +46,7 @@ INSERT INTO `admin_users` (`id`, `username`, `password`) VALUES
 -- Table structure for table `apartments`
 --
 
-CREATE TABLE `apartments` (
+CREATE TABLE IF NOT EXISTS `apartments` (
   `id` int(11) NOT NULL,
   `apartment_number` varchar(50) NOT NULL,
   `tenant_name` varchar(255) DEFAULT NULL,
@@ -71,7 +71,7 @@ INSERT INTO `apartments` (`id`, `apartment_number`, `tenant_name`, `tenant_email
 -- Table structure for table `visitors`
 --
 
-CREATE TABLE `visitors` (
+CREATE TABLE IF NOT EXISTS `visitors` (
   `id` int(11) NOT NULL,
   `visitor_name` varchar(255) NOT NULL,
   `contact` varchar(100) DEFAULT NULL,
