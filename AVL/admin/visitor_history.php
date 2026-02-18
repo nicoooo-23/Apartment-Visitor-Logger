@@ -38,7 +38,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
     ?>
     <tr>
         <td><?php echo htmlspecialchars($row['visitor_name']); ?></td>
-        <td><?php echo $row['apartment_number']; ?></td>
+        <td><?php echo $row['apartment_id']; ?></td>
         <td><?php echo htmlspecialchars($row['purpose']); ?></td>
         <td><?php echo $row['visit_time']; ?></td>
         <td><?php echo $row['checkout_time']; ?></td>

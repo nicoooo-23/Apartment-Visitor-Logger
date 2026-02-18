@@ -94,7 +94,7 @@ if ($result && $row = mysqli_fetch_assoc($result)) {
                         <tr>
                             <td><?php echo htmlspecialchars($row['id']); ?></td>
                             <td><?php echo htmlspecialchars($row['visitor_name']); ?></td>
-                            <td><?php echo htmlspecialchars($row['apartment_number']); ?></td>
+                            <td><?php echo htmlspecialchars($row['apartment_id']); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </table>
