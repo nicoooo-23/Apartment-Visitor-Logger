@@ -24,7 +24,7 @@ if (session_status() === PHP_SESSION_NONE) {
             </div>
         </div>
         <div class="nav-links">
-            <a href="index.php"><i class="fa-solid fa-house icon"></i> Home</a>
+            <a href="index.php"><i class="fa-solid fa-house icon"></i>Home</a>
             <a href="visitor.php"><i class="fa-solid fa-bell icon"></i> Log Visitors</a>
             <a href="admin/admin_dashboard.php"><i class="fa-solid fa-user icon"></i> Admin</a>
         </div>

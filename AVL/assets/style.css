@@ -108,12 +108,16 @@ hr { display: none; }
     margin-top: 25px;
     font-family: Arial, Helvetica, sans-serif !important;
     text-align: left;
-    padding-left: 15px;
 }
 
 .nav-links a {
     font-family: Arial, Helvetica, sans-serif !important;
     font-size: 1rem;
+}
+
+.nav-links i {
+    font-size: 1.25rem;
+    margin-right: 1rem;
 }
 
 .title-logo .logo-container {
@@ -331,23 +335,16 @@ a[style*="color: red"] {
 }
 
 /* Mobile */
-/* Medium screens - keep left alignment */
 @media (min-width: 768px) and (max-width: 991px) {
     .nav-bar {
         text-align: center;
     }
     
     .nav-links {
-        text-align: left !important;
+        text-align: center !important;
     }
 }
 
-@media (max-width: 767px) {
-    .nav-links {
-        text-align: center !important;
-        padding-left: 0 !important;
-    }
-}
 @media (max-width: 30rem) {
     body {
         padding: 1rem;
