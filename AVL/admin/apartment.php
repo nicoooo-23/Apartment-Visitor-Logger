@@ -56,9 +56,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 // DELETE apartment
+$delete_error = '';
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']); // sanitize input
-    $conn->query("DELETE FROM apartments WHERE id = $id");
+    
+    // Check if apartment has any visitor records
+    $check_visitors = $conn->query("SELECT COUNT(*) as visitor_count FROM visitors WHERE apartment_id = $id");
+    $visitor_data = $check_visitors->fetch_assoc();
+    
+    if ($visitor_data['visitor_count'] > 0) {
+        $delete_error = "Cannot delete apartment with existing visitor records. Please check out or remove all visitor records first.";
+    } else {
+        $conn->query("DELETE FROM apartments WHERE id = $id");
+    }
 }
 
 // -------------------------------
@@ -81,6 +91,12 @@ if ($result) {
 </head>
 <body>
 <div class="container">
+    <?php if (!empty($delete_error)): ?>
+    <div style="color: red; padding: 10px; margin-bottom: 20px; border: 1px solid red; background-color: #ffe6e6; border-radius: 4px;">
+        <strong>Error:</strong> <?php echo htmlspecialchars($delete_error); ?>
+    </div>
+    <?php endif; ?>
+    
     <h1>Apartment Management</h1>
     <h2>Add Apartment</h2>
 
