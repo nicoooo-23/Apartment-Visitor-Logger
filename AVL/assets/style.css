@@ -226,6 +226,17 @@ button:hover {
     background-color: #2980b9;
 }
 
+.export-btn-container{
+    width: 100%; 
+    display: flex;
+    justify-content: flex-end;
+    margin: 12px 0;
+}
+
+.export-btn {
+    width: auto !important;
+}
+
 .delete-btn {
     color: #fff;
     text-decoration: none;
@@ -382,7 +393,12 @@ a[style*="color: red"] {
     table td {
         padding: 0.625rem;
     }
+
+    .export-btn {
+        width: auto;
+    }
 }
+
 
 /* Mobile - Small */
 @media (max-width: 30rem) {

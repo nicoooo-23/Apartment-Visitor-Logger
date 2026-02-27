@@ -64,13 +64,63 @@ if (!empty($apartment)) {
 // Sorting
 $sql .= " ORDER BY $sort";
 
+
+// CSV Export of Visitors
+if (isset($_GET['export']) && $_GET['export'] == 'csv') {
+
+    if (ob_get_length()) { ob_clean(); } // clears accidental output
+
+    $exportResult = $conn->query($sql);
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="visitor_history.csv"'); // Tells the browser to download the file with this filename
+
+    $output = fopen("php://output", "w");
+
+    // Add the column headers for the CSV file
+    fputcsv($output, ["Name","Apartment","Purpose","Time In","Time Out","Status"]);
+
+    if ($exportResult && $exportResult->num_rows > 0) {
+        while ($row = $exportResult->fetch_assoc()) {
+            fputcsv($output, [
+                $row['visitor_name'],
+                $row['apartment_number'],
+                $row['purpose'],
+                $row['visit_time'],
+                $row['checkout_time'],
+                $row['status']
+            ]);
+        }
+    }
+
+    fclose($output);
+    exit;
+}
 $result = $conn->query($sql);
+require_once 'admin_includes/admin_header.php';
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>Visitor History</title>
+    <script>
+        function exportCSV() {
+            // Get current form values
+            const search = document.querySelector('input[name="search"]').value;
+            const apartment = document.querySelector('select[name="apartment"]').value;
+            const sort = document.querySelector('select[name="sort"]').value;
+            
+            // Build URL with current parameters plus export=csv
+            let url = window.location.pathname + '?export=csv';
+            if (search) url += '&search=' + encodeURIComponent(search);
+            if (apartment) url += '&apartment=' + encodeURIComponent(apartment);
+            if (sort) url += '&sort=' + encodeURIComponent(sort);
+            
+            // Navigate to the export URL
+            window.location.href = url;
+        }
+    </script>
 </head>
 <body>
 
@@ -106,6 +156,12 @@ $result = $conn->query($sql);
     </form>
 
     <br>
+
+    <div class="export-btn-container">
+        <button type="button" onclick="exportCSV()" class="export-btn">
+            Export Records to CSV
+        </button>
+    </div>
 
     <table border="1" cellpadding="5">
         <tr>
