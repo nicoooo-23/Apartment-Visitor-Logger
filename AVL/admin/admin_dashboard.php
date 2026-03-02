@@ -84,7 +84,10 @@ if ($result && $row = mysqli_fetch_assoc($result)) {
                         // FETCH VISITOR HISTORY
                         // -------------------------------
                         $visitor_history = [];
-                        $result = $conn->query("SELECT * FROM visitors ORDER BY visit_time DESC LIMIT 3");
+                        $result = $conn->query("SELECT visitors.*, apartments.apartment_number \
+                                                FROM visitors \
+                                                JOIN apartments ON visitors.apartment_id = apartments.id \
+                                                ORDER BY visit_time DESC LIMIT 3");
                         if ($result) {
                             while ($row = $result->fetch_assoc()) {
                                 $visitor_history[] = $row;
@@ -94,7 +97,7 @@ if ($result && $row = mysqli_fetch_assoc($result)) {
                         <tr>
                             <td><?php echo htmlspecialchars($row['id']); ?></td>
                             <td><?php echo htmlspecialchars($row['visitor_name']); ?></td>
-                            <td><?php echo htmlspecialchars($row['apartment_id']); ?></td>
+                            <td><?php echo htmlspecialchars($row['apartment_number']); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </table>
