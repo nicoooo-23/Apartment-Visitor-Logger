@@ -43,7 +43,7 @@ if (isset($_POST['check_out'])) {
             UPDATE visitors
             SET status = 'checked_out',
                 checkout_time = NOW()
-            WHERE id = ? AND status = 'checked_in'
+            WHERE v_id = ? AND status = 'checked_in'
         ");
 
         $stmt->bind_param("i", $visitor_id);

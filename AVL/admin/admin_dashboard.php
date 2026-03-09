@@ -57,7 +57,7 @@ if ($result && $row = mysqli_fetch_assoc($result)) {
                         // FETCH 3 APARTMENTS
                         // -------------------------------
                         $apartments = [];
-                        $result = $conn->query("SELECT * FROM apartments ORDER BY apartment_number ASC LIMIT 3");
+                        $result = $conn->query("SELECT a.apartment_number, t.tenant_name FROM apartments a LEFT JOIN tenants t ON a.tenant_id = t.t_id ORDER BY a.apartment_number ASC LIMIT 3");
                         if ($result) {
                             while ($row = $result->fetch_assoc()) {
                                 $apartments[] = $row;
@@ -66,7 +66,7 @@ if ($result && $row = mysqli_fetch_assoc($result)) {
                         foreach ($apartments as $row): ?>
                         <tr>
                             <td><?php echo htmlspecialchars($row['apartment_number']); ?></td>
-                            <td><?php echo htmlspecialchars($row['tenant_name']); ?></td>
+                            <td><?php echo htmlspecialchars($row['tenant_name'] ?? 'Vacant'); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </table>
@@ -86,7 +86,7 @@ if ($result && $row = mysqli_fetch_assoc($result)) {
                         $visitor_history = [];
                         $result = $conn->query("SELECT visitors.*, apartments.apartment_number
                                                 FROM visitors
-                                                JOIN apartments ON visitors.apartment_id = apartments.id
+                                                JOIN apartments ON visitors.apartment_id = apartments.apt_id
                                                 ORDER BY visit_time DESC LIMIT 3");
                         if ($result) {
                             while ($row = $result->fetch_assoc()) {
@@ -95,7 +95,7 @@ if ($result && $row = mysqli_fetch_assoc($result)) {
                         }
                         foreach ($visitor_history as $row): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($row['id']); ?></td>
+                            <td><?php echo htmlspecialchars($row['v_id']); ?></td>
                             <td><?php echo htmlspecialchars($row['visitor_name']); ?></td>
                             <td><?php echo htmlspecialchars($row['apartment_number']); ?></td>
                         </tr>

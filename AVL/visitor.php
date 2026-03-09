@@ -28,12 +28,12 @@ require_once 'includes/header.php';
             <?php
             // only occupied apartments should receive visitors
             $apts = $conn->query(
-                "SELECT id, apartment_number FROM apartments WHERE status = 'occupied'"
+                "SELECT apt_id, apartment_number FROM apartments WHERE status = 'occupied'"
             );
 
             while ($a = $apts->fetch_assoc()):
             ?>
-                <option value="<?php echo $a['id']; ?>">
+                <option value="<?php echo $a['apt_id']; ?>">
                     <?php echo $a['apartment_number']; ?>
                 </option>
             <?php endwhile; ?>
@@ -54,11 +54,11 @@ require_once 'includes/header.php';
         <select name="checkout_visitor" id="checkout_visitor" required>
             <option value="">Select Visitor</option>
             <?php
-            $checked_in_visitors = $conn->query("SELECT id, visitor_name, apartment_id FROM visitors WHERE status = 'checked_in'");
+            $checked_in_visitors = $conn->query("SELECT v.v_id as id, v.visitor_name, a.apartment_number FROM visitors v JOIN apartments a ON v.apartment_id = a.apt_id WHERE v.status = 'checked_in'");
             while ($v = $checked_in_visitors->fetch_assoc()):
             ?>
                 <option value="<?php echo $v['id']; ?>">
-                    <?php echo htmlspecialchars($v['visitor_name'] . ' (Apt: ' . $v['apartment_id'] . ')'); ?>
+                    <?php echo htmlspecialchars($v['visitor_name'] . ' (Apt: ' . $v['apartment_number'] . ')'); ?>
                 </option>
             <?php endwhile; ?>
         </select>
@@ -79,7 +79,7 @@ require_once 'includes/header.php';
     $inside = $conn->query("
         SELECT v.*, a.apartment_number
         FROM visitors v
-        JOIN apartments a ON v.apartment_id = a.id
+        JOIN apartments a ON v.apartment_id = a.apt_id
         WHERE v.status = 'checked_in'
         ");
 

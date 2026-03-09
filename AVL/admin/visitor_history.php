@@ -39,7 +39,7 @@ if (isset($_GET['sort'])) {
 }
 
 // Get apartment list for dropdown
-$apartmentList = $conn->query("SELECT id, apartment_number 
+$apartmentList = $conn->query("SELECT apt_id, apartment_number 
                                FROM apartments 
                                ORDER BY apartment_number ASC");
 
@@ -47,7 +47,7 @@ $apartmentList = $conn->query("SELECT id, apartment_number
 $sql = "SELECT visitors.*, apartments.apartment_number
         FROM visitors
         JOIN apartments 
-        ON visitors.apartment_id = apartments.id
+        ON visitors.apartment_id = apartments.apt_id
         WHERE 1=1";
 
 // Search filter
@@ -138,8 +138,8 @@ require_once 'admin_includes/admin_header.php';
             <option value="">All Apartments</option>
 
             <?php while ($apt = $apartmentList->fetch_assoc()): ?>
-                <option value="<?php echo $apt['id']; ?>"
-                    <?php if ($apartment == $apt['id']) echo "selected"; ?>>
+                <option value="<?php echo $apt['apt_id']; ?>"
+                    <?php if ($apartment == $apt['apt_id']) echo "selected"; ?>>
                     <?php echo htmlspecialchars($apt['apartment_number']); ?>
                 </option>
             <?php endwhile; ?>
