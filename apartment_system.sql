@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 18, 2026 at 11:06 AM
+-- Generation Time: Mar 09, 2026 at 01:38 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -28,7 +28,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE IF NOT EXISTS `admin_users` (
-  `id` int(11) NOT NULL,
+  `admin_id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS `admin_users` (
 -- Dumping data for table `admin_users`
 --
 
-INSERT IGNORE INTO `admin_users` (`id`, `username`, `password`) VALUES
-(1, 'admin', '$2y$10$hqKlYskY8XtlgZ1oLhIdN.wdKi5tH/X0QShsG3VveF3Y96TZfZjnO');
+INSERT IGNORE INTO `admin_users` (`admin_id`, `username`, `password`) VALUES
+(1, 'admin', '$2y$10$QA4ZGN90ccOvA5K2vb5drevUqEGpBhOSKe45HHOG7VmgKzbo92sT6');
 
 -- --------------------------------------------------------
 
@@ -47,11 +47,9 @@ INSERT IGNORE INTO `admin_users` (`id`, `username`, `password`) VALUES
 --
 
 CREATE TABLE IF NOT EXISTS `apartments` (
-  `id` int(11) NOT NULL,
+  `apt_id` int(11) NOT NULL,
   `apartment_number` varchar(50) NOT NULL,
-  `tenant_name` varchar(255) DEFAULT NULL,
-  `tenant_email` varchar(255) DEFAULT NULL,
-  `tenant_phone` varchar(50) DEFAULT NULL,
+  `tenant_id` int(11) DEFAULT NULL,
   `status` enum('occupied','vacant') DEFAULT 'vacant'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -59,11 +57,34 @@ CREATE TABLE IF NOT EXISTS `apartments` (
 -- Dumping data for table `apartments`
 --
 
-INSERT INTO `apartments` (`id`, `apartment_number`, `tenant_name`, `tenant_email`, `tenant_phone`, `status`) VALUES
-(1, '1', 'Nicole Rivera', 'sample@nico.com', '12345', 'occupied'),
-(2, '2', 'Graciela Gozum', 'sample@gracie.com', '67890', 'occupied'),
-(3, '3', 'Christine Dantes', 'sample@tine.com', '54321', 'occupied'),
-(4, '4', 'Kenneth Guanlao', 'sample@neth.com', '09876', 'occupied');
+INSERT IGNORE INTO `apartments` (`apt_id`, `apartment_number`, `tenant_id`, `status`) VALUES
+(1, '101', 1, 'occupied'),
+(2, '102', 2, 'occupied'),
+(3, '103', 3, 'occupied'),
+(4, '104', 4, 'occupied');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tenants`
+--
+
+CREATE TABLE IF NOT EXISTS `tenants` (
+  `t_id` int(11) NOT NULL,
+  `tenant_name` varchar(255) NOT NULL,
+  `tenant_email` varchar(255) DEFAULT NULL,
+  `tenant_phone` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tenants`
+--
+
+INSERT IGNORE INTO `tenants` (`t_id`, `tenant_name`, `tenant_email`, `tenant_phone`) VALUES
+(1, 'Nicole Rivera', 'sample@nico.com', '0911-222-3333'),
+(2, 'Christine Dantes', 'sample@chrissy.com', '0922-333-4444'),
+(3, 'Graciela Gozum', 'sample@gracie.com', '0933-444-5555'),
+(4, 'Kenneth Guanlao', 'sample@neth.com', '0944-555-6666');
 
 -- --------------------------------------------------------
 
@@ -71,8 +92,8 @@ INSERT INTO `apartments` (`id`, `apartment_number`, `tenant_name`, `tenant_email
 -- Table structure for table `visitors`
 --
 
-CREATE TABLE IF NOT EXISTS `visitors` (
-  `id` int(11) NOT NULL,
+CREATE TABLE `visitors` (
+  `v_id` int(11) NOT NULL,
   `visitor_name` varchar(255) NOT NULL,
   `contact` varchar(100) DEFAULT NULL,
   `purpose` text DEFAULT NULL,
@@ -86,8 +107,8 @@ CREATE TABLE IF NOT EXISTS `visitors` (
 -- Dumping data for table `visitors`
 --
 
-INSERT INTO `visitors` (`id`, `visitor_name`, `contact`, `purpose`, `apartment_id`, `status`, `visit_time`, `checkout_time`) VALUES
-(1, 'John Doe', '010-111-2121', 'Delivery', 2, 'checked_in', '2026-02-16 03:37:00', '2026-02-16 03:44:00');
+INSERT INTO `visitors` (`v_id`, `visitor_name`, `contact`, `purpose`, `apartment_id`, `status`, `visit_time`, `checkout_time`) VALUES
+(1, 'Rain D.', '5317', 'Friend visitation.', 1, 'checked_out', '2026-03-09 11:59:51', '2026-03-09 12:36:51');
 
 --
 -- Indexes for dumped tables
@@ -97,21 +118,28 @@ INSERT INTO `visitors` (`id`, `visitor_name`, `contact`, `purpose`, `apartment_i
 -- Indexes for table `admin_users`
 --
 ALTER TABLE `admin_users`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`admin_id`),
   ADD UNIQUE KEY `username` (`username`);
 
 --
 -- Indexes for table `apartments`
 --
 ALTER TABLE `apartments`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `apartment_number` (`apartment_number`);
+  ADD PRIMARY KEY (`apt_id`),
+  ADD UNIQUE KEY `apartment_number` (`apartment_number`),
+  ADD KEY `tenant_id` (`tenant_id`);
+
+--
+-- Indexes for table `tenants`
+--
+ALTER TABLE `tenants`
+  ADD PRIMARY KEY (`t_id`);
 
 --
 -- Indexes for table `visitors`
 --
 ALTER TABLE `visitors`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`v_id`),
   ADD KEY `apartment_id` (`apartment_id`);
 
 --
@@ -122,29 +150,41 @@ ALTER TABLE `visitors`
 -- AUTO_INCREMENT for table `admin_users`
 --
 ALTER TABLE `admin_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `admin_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `apartments`
 --
 ALTER TABLE `apartments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `apt_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `tenants`
+--
+ALTER TABLE `tenants`
+  MODIFY `t_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `visitors`
 --
 ALTER TABLE `visitors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `v_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
 --
 
 --
+-- Constraints for table `apartments`
+--
+ALTER TABLE `apartments`
+  ADD CONSTRAINT `apartments_ibfk_1` FOREIGN KEY (`tenant_id`) REFERENCES `tenants` (`t_id`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `visitors`
 --
 ALTER TABLE `visitors`
-  ADD CONSTRAINT `visitors_ibfk_1` FOREIGN KEY (`apartment_id`) REFERENCES `apartments` (`id`);
+  ADD CONSTRAINT `visitors_ibfk_1` FOREIGN KEY (`apartment_id`) REFERENCES `apartments` (`apt_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
