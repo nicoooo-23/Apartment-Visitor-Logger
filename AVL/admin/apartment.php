@@ -22,16 +22,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
     if (!empty($apt)) {
         $apt = $conn->real_escape_string($apt);
-        $tenant = $conn->real_escape_string($tenant);
-        $email = $conn->real_escape_string($email);
-        $phone = $conn->real_escape_string($phone);
+        $tenant_id = NULL;
+        $status = 'vacant';
 
-        $status = empty($tenant) ? 'vacant' : 'occupied';
+        if (!empty($tenant)) {
+            $tenant = $conn->real_escape_string($tenant);
+            $email = $conn->real_escape_string($email);
+            $phone = $conn->real_escape_string($phone);
 
-        $conn->query("
-            INSERT IGNORE INTO apartments (apartment_number, tenant_name, status, tenant_email, tenant_phone)
-            VALUES ('$apt', '$tenant', '$status', '$email', '$phone')
-        ");
+            $conn->query("INSERT INTO tenants (tenant_name, tenant_email, tenant_phone) VALUES ('$tenant', '$email', '$phone')");
+            $tenant_id = $conn->insert_id;
+            $status = 'occupied';
+        }
+
+        $conn->query("INSERT IGNORE INTO apartments (apartment_number, tenant_id, status) VALUES ('$apt', " . ($tenant_id ? $tenant_id : 'NULL') . ", '$status')");
     }
 }
 
@@ -39,20 +43,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit') {
     $id = intval($_POST['id']);
     $tenant = trim($_POST['tenant']);
-    $status = isset($_POST['status']) && $_POST['status'] === 'occupied' ? 'occupied' : 'vacant';
     $email = trim($_POST['email']);
     $phone = trim($_POST['phone']);
 
-    // escape inputs
-    $tenant = $conn->real_escape_string($tenant);
-    $email = $conn->real_escape_string($email);
-    $phone = $conn->real_escape_string($phone);
+    // Get current tenant_id
+    $current = $conn->query("SELECT tenant_id FROM apartments WHERE apt_id = $id");
+    $current_row = $current->fetch_assoc();
+    $current_tenant_id = $current_row['tenant_id'];
 
-    $conn->query("
-        UPDATE apartments
-        SET tenant_name = '$tenant', status = '$status', tenant_email = '$email', tenant_phone = '$phone'
-        WHERE id = $id
-    ");
+    $tenant_id = $current_tenant_id;
+    $status = 'vacant';
+
+    if (!empty($tenant)) {
+        $tenant = $conn->real_escape_string($tenant);
+        $email = $conn->real_escape_string($email);
+        $phone = $conn->real_escape_string($phone);
+
+        if ($current_tenant_id) {
+            // Update existing tenant
+            $conn->query("UPDATE tenants SET tenant_name = '$tenant', tenant_email = '$email', tenant_phone = '$phone' WHERE t_id = $current_tenant_id");
+        } else {
+            // Insert new tenant
+            $conn->query("INSERT INTO tenants (tenant_name, tenant_email, tenant_phone) VALUES ('$tenant', '$email', '$phone')");
+            $tenant_id = $conn->insert_id;
+        }
+        $status = 'occupied';
+    } else {
+        // If tenant empty, set tenant_id to NULL
+        $tenant_id = NULL;
+    }
+
+    $conn->query("UPDATE apartments SET tenant_id = " . ($tenant_id ? $tenant_id : 'NULL') . ", status = '$status' WHERE apt_id = $id");
 }
 
 // DELETE apartment
@@ -67,7 +88,7 @@ if (isset($_GET['delete'])) {
     if ($visitor_data['visitor_count'] > 0) {
         $delete_error = "Cannot delete apartment with existing visitor records. Please check out or remove all visitor records first.";
     } else {
-        $conn->query("DELETE FROM apartments WHERE id = $id");
+        $conn->query("DELETE FROM apartments WHERE apt_id = $id");
     }
 }
 
@@ -75,7 +96,7 @@ if (isset($_GET['delete'])) {
 // FETCH ALL APARTMENTS
 // -------------------------------
 $apartments = [];
-$result = $conn->query("SELECT * FROM apartments ORDER BY apartment_number ASC");
+$result = $conn->query("SELECT a.apt_id as id, a.apartment_number, a.status, t.tenant_name, t.tenant_email, t.tenant_phone FROM apartments a LEFT JOIN tenants t ON a.tenant_id = t.t_id ORDER BY a.apartment_number ASC");
 if ($result) {
     while ($row = $result->fetch_assoc()) {
         $apartments[] = $row;
@@ -136,22 +157,19 @@ if ($result) {
         <!-- Display apartment info -->
         <td><?php echo htmlspecialchars($row['apartment_number']); ?></td>
 
-        <!-- Editable form for tenant, contact & status -->
+        <!-- Editable form for tenant, contact -->
         <form method="POST">
             <td>
-                <input type="text" name="tenant" value="<?php echo htmlspecialchars($row['tenant_name']); ?>">
+                <input type="text" name="tenant" value="<?php echo htmlspecialchars($row['tenant_name'] ?? ''); ?>">
             </td>
             <td>
-                <input type="email" name="email" value="<?php echo htmlspecialchars($row['tenant_email']); ?>">
+                <input type="email" name="email" value="<?php echo htmlspecialchars($row['tenant_email'] ?? ''); ?>">
             </td>
             <td>
-                <input type="text" name="phone" value="<?php echo htmlspecialchars($row['tenant_phone']); ?>">
+                <input type="text" name="phone" value="<?php echo htmlspecialchars($row['tenant_phone'] ?? ''); ?>">
             </td>
             <td>
-                <select name="status">
-                    <option value="vacant" <?php echo $row['status'] === 'vacant' ? 'selected' : ''; ?>>Vacant</option>
-                    <option value="occupied" <?php echo $row['status'] === 'occupied' ? 'selected' : ''; ?>>Occupied</option>
-                </select>
+                <?php echo htmlspecialchars($row['status']); ?>
             </td>
             <td>
                 <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
