@@ -26,14 +26,7 @@ if ($result && $row = mysqli_fetch_assoc($result)) {
     $current_visitors = $row['total'];
 }
 ?>
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../assets/style.css">
-</head>
-<body>
+<title>Admin Dashboard</title>
     <div class="container">
         <h1>Admin Dashboard</h1>
         <h2>Welcome, <?php echo $_SESSION['admin_username']; ?></h2>

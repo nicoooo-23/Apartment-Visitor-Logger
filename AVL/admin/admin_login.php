@@ -9,12 +9,6 @@ if (isset($_SESSION['admin_logged_in'])) {
 require_once 'admin_includes/admin_header.php';
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Admin Login</title>
-</head>
-<body>
 <div class="container">
     <h2>Admin Login</h2>
 

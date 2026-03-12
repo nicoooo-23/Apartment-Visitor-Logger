@@ -3,12 +3,6 @@ require_once 'includes/db.php';
 require_once 'includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Visitor Log</title>
-</head>
-<body>
 <div class="container">
     <h2>Visitor Check-In</h2>
 

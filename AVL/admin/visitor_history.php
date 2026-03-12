@@ -100,27 +100,7 @@ $result = $conn->query($sql);
 require_once 'admin_includes/admin_header.php';
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
     <title>Visitor History</title>
-    <script>
-        function exportCSV() {
-            // Get current form values
-            const search = document.querySelector('input[name="search"]').value;
-            const apartment = document.querySelector('select[name="apartment"]').value;
-            const sort = document.querySelector('select[name="sort"]').value;
-            
-            // Build URL with current parameters plus export=csv
-            let url = window.location.pathname + '?export=csv';
-            if (search) url += '&search=' + encodeURIComponent(search);
-            if (apartment) url += '&apartment=' + encodeURIComponent(apartment);
-            if (sort) url += '&sort=' + encodeURIComponent(sort);
-            
-            // Navigate to the export URL
-            window.location.href = url;
-        }
-    </script>
 </head>
 <body>
 
@@ -193,6 +173,24 @@ require_once 'admin_includes/admin_header.php';
     </table>
 
 </div>
+
+    <script>
+        function exportCSV() {
+            // Get current form values
+            const search = document.querySelector('input[name="search"]').value;
+            const apartment = document.querySelector('select[name="apartment"]').value;
+            const sort = document.querySelector('select[name="sort"]').value;
+            
+            // Build URL with current parameters plus export=csv
+            let url = window.location.pathname + '?export=csv';
+            if (search) url += '&search=' + encodeURIComponent(search);
+            if (apartment) url += '&apartment=' + encodeURIComponent(apartment);
+            if (sort) url += '&sort=' + encodeURIComponent(sort);
+            
+            // Navigate to the export URL
+            window.location.href = url;
+        }
+    </script>
 
 </body>
 </html>

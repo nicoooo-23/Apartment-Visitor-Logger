@@ -1,7 +1,10 @@
+<!DOCTYPE html>
+<html>
 <head>
     <link rel="stylesheet" href="../assets/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+<body>
     <nav class="nav-bar">
         <div class="title-logo">
             <div class="logo-container">
@@ -19,4 +22,3 @@
         <a href="../admin/logout.php" style="color:red;"><i class="fa-solid fa-sign-out-alt icon"></i>Logout</a>
     </div>
     </nav>
-

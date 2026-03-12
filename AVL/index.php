@@ -3,13 +3,6 @@ require_once 'includes/db.php';
 require_once 'includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Apartment Management System</title>
-</head>
-<body>
-
 <div class="container">
     <h1>Dashboard</h1>
     <?php

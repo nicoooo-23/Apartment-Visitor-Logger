@@ -105,12 +105,7 @@ if ($result) {
 ?>
 
 <!-- HTML START -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Apartments</title>
-</head>
-<body>
+<title>Apartments</title>
 <div class="container">
     <?php if (!empty($delete_error)): ?>
     <div style="color: red; padding: 10px; margin-bottom: 20px; border: 1px solid red; background-color: #ffe6e6; border-radius: 4px;">
