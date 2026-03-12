@@ -12,7 +12,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
 // -------------------------------
 // HANDLE INSERT / UPDATE
 // -------------------------------
-
+$success_message = '';
 // INSERT new apartment
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
     $apt = trim($_POST['apt']);
@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $stmt->execute();
         $stmt->close();
     }
+    $success_message = "Apartment added successfully.";
 }
 
 // UPDATE existing apartment
@@ -83,6 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $stmt->bind_param("isi", $tenant_id, $status, $id);
     $stmt->execute();
     $stmt->close();
+
+    $success_message = "Apartment updated successfully.";
 }
 
 // DELETE apartment
@@ -125,6 +128,12 @@ if ($result) {
     <?php if (!empty($delete_error)): ?>
     <div style="color: red; padding: 10px; margin-bottom: 20px; border: 1px solid red; background-color: #ffe6e6; border-radius: 4px;">
         <strong>Error:</strong> <?php echo htmlspecialchars($delete_error); ?>
+    </div>
+    <?php endif; ?>
+    
+    <?php if (!empty($success_message)): ?>
+    <div style="color: green; padding: 10px; margin-bottom: 20px; border: 1px solid green; background-color: #e6ffe6; border-radius: 4px;">
+        <strong>Success:</strong> <?php echo htmlspecialchars($success_message); ?>
     </div>
     <?php endif; ?>
     

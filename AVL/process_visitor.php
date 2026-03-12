@@ -25,7 +25,7 @@ if (isset($_POST['check_in'])) {
         $stmt->close();
     }
 
-    header("Location: visitor.php");
+    header("Location: visitor.php?success=checkin");
     exit;
 }
 
@@ -50,6 +50,6 @@ if (isset($_POST['check_out'])) {
         $stmt->close();
     }
 
-    header("Location: visitor.php");
+    header("Location: visitor.php?success=checkout");
     exit;
 }

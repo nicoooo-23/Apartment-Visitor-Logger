@@ -4,6 +4,15 @@ require_once 'includes/header.php';
 ?>
 
 <div class="container">
+    <?php if (isset($_GET['success'])): ?>
+        <div style="color: green; padding: 10px; margin-bottom: 20px; border: 1px solid green; background-color: #e6ffe6; border-radius: 4px;">
+            <?php if ($_GET['success'] === 'checkin'): ?>
+                <strong>Success:</strong> Visitor has been checked in.
+            <?php elseif ($_GET['success'] === 'checkout'): ?>
+                <strong>Success:</strong> Visitor has been checked out.
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
     <h2>Visitor Check-In</h2>
 
     <form action="process_visitor.php" method="POST">
