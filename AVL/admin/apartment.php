@@ -21,21 +21,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $phone = trim($_POST['phone']);
 
     if (!empty($apt)) {
-        $apt = $conn->real_escape_string($apt);
         $tenant_id = NULL;
         $status = 'vacant';
 
         if (!empty($tenant)) {
-            $tenant = $conn->real_escape_string($tenant);
-            $email = $conn->real_escape_string($email);
-            $phone = $conn->real_escape_string($phone);
-
-            $conn->query("INSERT INTO tenants (tenant_name, tenant_email, tenant_phone) VALUES ('$tenant', '$email', '$phone')");
+            $stmt = $conn->prepare("INSERT INTO tenants (tenant_name, tenant_email, tenant_phone) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $tenant, $email, $phone);
+            $stmt->execute();
             $tenant_id = $conn->insert_id;
+            $stmt->close();
             $status = 'occupied';
         }
 
-        $conn->query("INSERT IGNORE INTO apartments (apartment_number, tenant_id, status) VALUES ('$apt', " . ($tenant_id ? $tenant_id : 'NULL') . ", '$status')");
+        $stmt = $conn->prepare("INSERT IGNORE INTO apartments (apartment_number, tenant_id, status) VALUES (?, ?, ?)");
+        $stmt->bind_param("sis", $apt, $tenant_id, $status);
+        $stmt->execute();
+        $stmt->close();
     }
 }
 
@@ -47,25 +48,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $phone = trim($_POST['phone']);
 
     // Get current tenant_id
-    $current = $conn->query("SELECT tenant_id FROM apartments WHERE apt_id = $id");
-    $current_row = $current->fetch_assoc();
-    $current_tenant_id = $current_row['tenant_id'];
+    $stmt = $conn->prepare("SELECT tenant_id FROM apartments WHERE apt_id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $current = $stmt->get_result()->fetch_assoc();
+    $current_tenant_id = $current['tenant_id'];
+    $stmt->close();
 
     $tenant_id = $current_tenant_id;
     $status = 'vacant';
 
     if (!empty($tenant)) {
-        $tenant = $conn->real_escape_string($tenant);
-        $email = $conn->real_escape_string($email);
-        $phone = $conn->real_escape_string($phone);
-
         if ($current_tenant_id) {
             // Update existing tenant
-            $conn->query("UPDATE tenants SET tenant_name = '$tenant', tenant_email = '$email', tenant_phone = '$phone' WHERE t_id = $current_tenant_id");
+            $stmt = $conn->prepare("UPDATE tenants SET tenant_name = ?, tenant_email = ?, tenant_phone = ? WHERE t_id = ?");
+            $stmt->bind_param("sssi", $tenant, $email, $phone, $current_tenant_id);
+            $stmt->execute();
+            $stmt->close();
         } else {
             // Insert new tenant
-            $conn->query("INSERT INTO tenants (tenant_name, tenant_email, tenant_phone) VALUES ('$tenant', '$email', '$phone')");
+            $stmt = $conn->prepare("INSERT INTO tenants (tenant_name, tenant_email, tenant_phone) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $tenant, $email, $phone);
+            $stmt->execute();
             $tenant_id = $conn->insert_id;
+            $stmt->close();
         }
         $status = 'occupied';
     } else {
@@ -73,22 +79,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $tenant_id = NULL;
     }
 
-    $conn->query("UPDATE apartments SET tenant_id = " . ($tenant_id ? $tenant_id : 'NULL') . ", status = '$status' WHERE apt_id = $id");
+    $stmt = $conn->prepare("UPDATE apartments SET tenant_id = ?, status = ? WHERE apt_id = ?");
+    $stmt->bind_param("isi", $tenant_id, $status, $id);
+    $stmt->execute();
+    $stmt->close();
 }
 
 // DELETE apartment
 $delete_error = '';
 if (isset($_GET['delete'])) {
-    $id = intval($_GET['delete']); // sanitize input
-    
+    $id = intval($_GET['delete']);
+
     // Check if apartment has any visitor records
-    $check_visitors = $conn->query("SELECT COUNT(*) as visitor_count FROM visitors WHERE apartment_id = $id");
-    $visitor_data = $check_visitors->fetch_assoc();
-    
+    $stmt = $conn->prepare("SELECT COUNT(*) as visitor_count FROM visitors WHERE apartment_id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $visitor_data = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
     if ($visitor_data['visitor_count'] > 0) {
         $delete_error = "Cannot delete apartment with existing visitor records. Please check out or remove all visitor records first.";
     } else {
-        $conn->query("DELETE FROM apartments WHERE apt_id = $id");
+        $stmt = $conn->prepare("DELETE FROM apartments WHERE apt_id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $stmt->close();
     }
 }
 

@@ -15,17 +15,17 @@ $search = "";
 $apartment = "";
 $sort = "visit_time DESC";
 
-// Get search input
+// Get search input (raw, for display — binding handles safety)
 if (isset($_GET['search'])) {
-    $search = $conn->real_escape_string($_GET['search']);
+    $search = trim($_GET['search']);
 }
 
 // Get apartment filter
 if (isset($_GET['apartment'])) {
-    $apartment = $conn->real_escape_string($_GET['apartment']);
+    $apartment = trim($_GET['apartment']);
 }
 
-// Get sort option
+// Get sort option — whitelist only, never from user input directly
 if (isset($_GET['sort'])) {
     if ($_GET['sort'] == "name") {
         $sort = "visitor_name ASC";
@@ -43,41 +43,56 @@ $apartmentList = $conn->query("SELECT apt_id, apartment_number
                                FROM apartments 
                                ORDER BY apartment_number ASC");
 
-// Build main query (JOIN)
+// -------------------------------
+// BUILD QUERY WITH PREPARED STMT
+// -------------------------------
+// Base query
 $sql = "SELECT visitors.*, apartments.apartment_number
         FROM visitors
-        JOIN apartments 
+        JOIN apartments
         ON visitors.apartment_id = apartments.apt_id
         WHERE 1=1";
 
+// Collect bind params dynamically
+$types = "";
+$params = [];
+
 // Search filter
 if (!empty($search)) {
-    $sql .= " AND (visitor_name LIKE '%$search%' 
-              OR purpose LIKE '%$search%')";
+    $sql .= " AND (visitor_name LIKE ? OR purpose LIKE ?)";
+    $searchParam = "%" . $search . "%";
+    $types .= "ss";
+    $params[] = &$searchParam;
+    $params[] = &$searchParam;
 }
 
 // Apartment filter
 if (!empty($apartment)) {
-    $sql .= " AND visitors.apartment_id = '$apartment'";
+    $sql .= " AND visitors.apartment_id = ?";
+    $types .= "i";
+    $params[] = &$apartment;
 }
 
-// Sorting
+// Sorting — already whitelisted above, safe to interpolate
 $sql .= " ORDER BY $sort";
 
-
-// CSV Export of Visitors
+// CSV Export
 if (isset($_GET['export']) && $_GET['export'] == 'csv') {
 
-    if (ob_get_length()) { ob_clean(); } // clears accidental output
+    if (ob_get_length()) { ob_clean(); }
 
-    $exportResult = $conn->query($sql);
+    $stmt = $conn->prepare($sql);
+    if (!empty($types)) {
+        array_unshift($params, $types);
+        call_user_func_array([$stmt, 'bind_param'], $params);
+    }
+    $stmt->execute();
+    $exportResult = $stmt->get_result();
 
     header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="visitor_history.csv"'); // Tells the browser to download the file with this filename
+    header('Content-Disposition: attachment; filename="visitor_history.csv"');
 
     $output = fopen("php://output", "w");
-
-    // Add the column headers for the CSV file
     fputcsv($output, ["Name","Apartment","Purpose","Time In","Time Out","Status"]);
 
     if ($exportResult && $exportResult->num_rows > 0) {
@@ -94,16 +109,22 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
     }
 
     fclose($output);
+    $stmt->close();
     exit;
 }
-$result = $conn->query($sql);
-require_once 'admin_includes/admin_header.php';
+
+// Normal page load
+$stmt = $conn->prepare($sql);
+if (!empty($types)) {
+    array_unshift($params, $types);
+    call_user_func_array([$stmt, 'bind_param'], $params);
+}
+$stmt->execute();
+$result = $stmt->get_result();
+$stmt->close();
 ?>
 
-    <title>Visitor History</title>
-</head>
-<body>
-
+<title>Visitor History</title>
 <div class="container">
     <h1>Visitor History</h1>
 
@@ -159,9 +180,9 @@ require_once 'admin_includes/admin_header.php';
                     <td><?php echo htmlspecialchars($row['visitor_name']); ?></td>
                     <td><?php echo htmlspecialchars($row['apartment_number']); ?></td>
                     <td><?php echo htmlspecialchars($row['purpose']); ?></td>
-                    <td><?php echo $row['visit_time']; ?></td>
-                    <td><?php echo $row['checkout_time']; ?></td>
-                    <td><?php echo $row['status']; ?></td>
+                    <td><?php echo htmlspecialchars($row['visit_time']); ?></td>
+                    <td><?php echo htmlspecialchars($row['checkout_time']); ?></td>
+                    <td><?php echo htmlspecialchars($row['status']); ?></td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
@@ -174,23 +195,20 @@ require_once 'admin_includes/admin_header.php';
 
 </div>
 
-    <script>
-        function exportCSV() {
-            // Get current form values
-            const search = document.querySelector('input[name="search"]').value;
-            const apartment = document.querySelector('select[name="apartment"]').value;
-            const sort = document.querySelector('select[name="sort"]').value;
-            
-            // Build URL with current parameters plus export=csv
-            let url = window.location.pathname + '?export=csv';
-            if (search) url += '&search=' + encodeURIComponent(search);
-            if (apartment) url += '&apartment=' + encodeURIComponent(apartment);
-            if (sort) url += '&sort=' + encodeURIComponent(sort);
-            
-            // Navigate to the export URL
-            window.location.href = url;
-        }
-    </script>
+<script>
+    function exportCSV() {
+        const search = document.querySelector('input[name="search"]').value;
+        const apartment = document.querySelector('select[name="apartment"]').value;
+        const sort = document.querySelector('select[name="sort"]').value;
+
+        let url = window.location.pathname + '?export=csv';
+        if (search) url += '&search=' + encodeURIComponent(search);
+        if (apartment) url += '&apartment=' + encodeURIComponent(apartment);
+        if (sort) url += '&sort=' + encodeURIComponent(sort);
+
+        window.location.href = url;
+    }
+</script>
 
 </body>
 </html>

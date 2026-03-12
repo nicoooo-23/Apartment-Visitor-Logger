@@ -11,11 +11,11 @@ $password = trim($_POST['password']);
 
 if (!empty($username) && !empty($password)) {
 
-    $username = $conn->real_escape_string($username);
+    $stmt = $conn->prepare("SELECT * FROM admin_users WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
 
-    $result = $conn->query(
-        "SELECT * FROM admin_users WHERE username = '$username'"
-    );
+    $result = $stmt->get_result();
 
     if ($result && $result->num_rows === 1) {
 
@@ -27,10 +27,13 @@ if (!empty($username) && !empty($password)) {
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_username'] = $username;
 
+            $stmt->close();
             header("Location: admin_dashboard.php");
             exit;
         }
     }
+
+    $stmt->close();
 }
 
 // if login fails

@@ -13,17 +13,16 @@ if (isset($_POST['check_in'])) {
 
     if (!empty($name) && !empty($apt)) {
 
-        $name = $conn->real_escape_string($name);
-        $phone = $conn->real_escape_string($phone);
-        $apt = $conn->real_escape_string($apt);
-        $purpose = $conn->real_escape_string($purpose);
-
-        $conn->query("
+        $stmt = $conn->prepare("
             INSERT INTO visitors
             (visitor_name, contact, purpose, apartment_id, status)
             VALUES
-            ('$name', '$phone', '$purpose', '$apt', 'checked_in')
+            (?, ?, ?, ?, 'checked_in')
         ");
+
+        $stmt->bind_param("sssi", $name, $phone, $purpose, $apt);
+        $stmt->execute();
+        $stmt->close();
     }
 
     header("Location: visitor.php");
@@ -48,6 +47,7 @@ if (isset($_POST['check_out'])) {
 
         $stmt->bind_param("i", $visitor_id);
         $stmt->execute();
+        $stmt->close();
     }
 
     header("Location: visitor.php");
