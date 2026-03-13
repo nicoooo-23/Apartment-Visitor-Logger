@@ -19,6 +19,7 @@
         <a href="../admin/admin_dashboard.php"><i class="fa-solid fa-tachometer-alt icon"></i>Dashboard</a>
         <a href="../admin/apartment.php"><i class="fa-solid fa-building icon"></i> Apartments</a>
         <a href="../admin/visitor_history.php"><i class="fa-solid fa-history icon"></i>Visitor History</a>
+        <a href="../admin/account.php"><i class="fa-solid fa-gear icon"></i>Account</a>
         <a href="../admin/logout.php" style="color:red;"><i class="fa-solid fa-sign-out-alt icon"></i>Logout</a>
     </div>
     </nav>
