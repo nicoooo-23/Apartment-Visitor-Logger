@@ -19,6 +19,9 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Lines starting from this point are to make sure the database exists even without importing an sql dump file
+// Database will be created along with the tables needed (IF NOT EXISTS used to reduce errors if database already exists beforehand
+
 // create database if it doesn't exist
 $conn->query("CREATE DATABASE IF NOT EXISTS $dbname");
 
