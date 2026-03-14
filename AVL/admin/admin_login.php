@@ -8,8 +8,9 @@ if (isset($_SESSION['admin_logged_in'])) {
 }
 // Check if admin account exists, if not redirect to setup page
 require_once '../includes/db.php';
-$check = $conn->query("SELECT 1 FROM admin_users LIMIT 1");
-if (!$check || $check->num_rows === 0) {
+
+$check = $conn->query("SELECT admin_id FROM admin_users LIMIT 1");
+if ($check->num_rows === 0) {
     header("Location: setup.php");
     exit;
 }
