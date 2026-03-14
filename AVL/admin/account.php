@@ -61,7 +61,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
         Confirm Current Password:
         <input type="password" name="current_password" required><br><br>
 
-        <button type="submit" style="background-color: red; color: white;">Delete Account</button>
+        <button type="submit" class="delete-btn">Delete Account</button>
     </form>
 </div>
 
