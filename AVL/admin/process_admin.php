@@ -6,37 +6,40 @@ require_once '../includes/db.php';
 // ADMIN LOGIN PROCESS
 // ==============================
 
-$username = trim($_POST['username']);
-$password = trim($_POST['password']);
+$username = isset($_POST['username']) ? trim($_POST['username']) : '';
+$password = isset($_POST['password']) ? trim($_POST['password']) : '';
 
-if (!empty($username) && !empty($password)) {
+// empty fields
+if ($username === '' || $password === '') {
+    header("Location: admin_login.php?error=empty");
+    exit;
+}
 
-    $stmt = $conn->prepare("SELECT * FROM admin_users WHERE username = ?");
-    $stmt->bind_param("s", $username);
-    $stmt->execute();
+$stmt = $conn->prepare("SELECT * FROM admin_users WHERE username = ?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
 
-    $result = $stmt->get_result();
+if ($result && $result->num_rows === 1) {
+    $admin = $result->fetch_assoc();
 
-    if ($result && $result->num_rows === 1) {
+    //verify hashed password
+    if (password_verify($password, $admin['password'])) {
+        $_SESSION['admin_logged_in'] = true;
+        $_SESSION['admin_username'] = $username;
 
-        $admin = $result->fetch_assoc();
-
-        // verify hashed password
-        if (password_verify($password, $admin['password'])) {
-
-            $_SESSION['admin_logged_in'] = true;
-            $_SESSION['admin_username'] = $username;
-
-            $stmt->close();
-            header("Location: admin_dashboard.php");
-            exit;
-        }
+        $stmt->close();
+        header("Location: admin_dashboard.php");
+        exit;
     }
+}
 
+// close statement if still open
+if (isset($stmt) && $stmt) {
     $stmt->close();
 }
 
 // if login fails
-header("Location: admin_login.php?error=1");
+header("Location: admin_login.php?error=invalid");
 exit;
 ?>
